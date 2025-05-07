@@ -1,22 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Project1 Visualizations</title>
+  <meta charset="UTF-8">
+  <title>Project1 Interactive Gallery</title>
   <style>
     body { font-family: sans-serif; padding: 2rem; }
-    h1 { margin-bottom: 1rem; }
-    ul { list-style: none; padding: 0; }
-    li { margin: .5rem 0; }
-    a { color: #0366d6; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .item { border: 1px solid #ddd; padding: .5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .item iframe { width: 100%; height: 200px; border: none; }
+    .item a { display: block; text-align: center; margin-top: .5rem; color: #0366d6; text-decoration: none; }
+    .item a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <h1>Project1 Visualizations</h1>
-  <ul>
-    <li><a href="CrabelProfitOpt.html">CrabelProfitOpt</a></li>
-    <!-- add more links here as you export new files -->
-  </ul>
+  <h1>Project1 Interactive Gallery</h1>
+  <div id="gallery" class="grid">Loading gallery...</div>
+
+  <script>
+    const owner = 'georgepruitt';
+    const repo  = 'visualizations';
+    const path  = 'docs/project1';
+
+    // Fetch directory listing from GitHub API
+    fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`)
+      .then(response => response.json())
+      .then(files => {
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = '';
+        files
+          .filter(f => f.name.endsWith('.html') && f.name !== 'index.html')
+          .forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'item';
+
+            // Embed as iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = f.name;
+            div.appendChild(iframe);
+
+            // Link to full page
+            const a = document.createElement('a');
+            a.href = f.name;
+            a.textContent = f.name.replace('.html', '');
+            div.appendChild(a);
+
+            gallery.appendChild(div);
+          });
+      })
+      .catch(err => {
+        document.getElementById('gallery').textContent = 'Error loading gallery: ' + err.message;
+      });
+  </script>
 </body>
 </html>
